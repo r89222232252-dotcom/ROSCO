@@ -1,0 +1,99 @@
+{
+  "homeBackground": null,
+  "expertsBackground": null,
+  "homeBackgroundScale": 50,
+  "expertsBackgroundScale": 50,
+  "hero": {
+    "title": {
+      "ru": "BEAUTY ATELIER",
+      "en": "BEAUTY ATELIER"
+    },
+    "subtitle": {
+      "ru": "Мы создаём не просто образ — мы дарим ощущение непревзойдённости",
+      "en": "We don't just create an image — we give you a feeling of being unsurpassed."
+    },
+    "location": {
+      "ru": "Узбекистан, Ташкент",
+      "en": "Uzbekistan, Tashkent"
+    },
+    "ctaText": {
+      "ru": "Записаться",
+      "en": "Book now"
+    }
+  },
+  "experts": [
+    {
+      "id": "sofia",
+      "name": {
+        "ru": "София",
+        "en": "Sofia"
+      },
+      "role": {
+        "ru": "Мастер",
+        "en": "Master"
+      },
+      "bio": {
+        "ru": "Опытный стилист",
+        "en": "Experienced stylist"
+      },
+      "imagePath": "/images/experts/1770070080917-photo_2025-12-08_23-32-17.jpg",
+      "imageScale": 100,
+      "imagePos": {
+        "x": 50,
+        "y": 50
+      },
+      "overlayText": {
+        "ru": "Sofia — мастер цвета",
+        "en": "Sofia — color master"
+      }
+    },
+    {
+      "id": "farrukh",
+      "name": {
+        "ru": "Фаррух",
+        "en": "Farrukh"
+      },
+      "role": {
+        "ru": "Мастер",
+        "en": "Master"
+      },
+      "bio": {
+        "ru": "Специалист по вечерним прическам",
+        "en": "Evening hair specialist"
+      },
+      "imagePath": "/images/experts/Соф и Фаррух.JPG",
+      "imageScale": 100,
+      "imagePos": {
+        "x": 50,
+        "y": 50
+      },
+      "overlayText": {
+        "ru": "Фаррух — искусство укладки",
+        "en": "Farrukh — styling art"
+      }
+    }
+  ],
+  "siteTexts": {
+    "nav": {
+      "home": {
+        "ru": "Главная",
+        "en": "Home"
+      },
+      "portfolio": {
+        "ru": "Портфолио",
+        "en": "Portfolio"
+      },
+      "experts": {
+        "ru": "Мастера",
+        "en": "Experts"
+      }
+    },
+    "footer": {
+      "address": {
+        "ru": "Москва, ул. Примерная, 1",
+        "en": "Moscow, 1 Sample St"
+      },
+      "phone": "+7 (999) 000-00-00"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "beauty-atelier-landing",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "quality": "npm run type-check && npm run lint && npm run format:check"
+  },
+  "dependencies": {
+    "@sanity/icons": "^3.7.4",
+    "@sanity/image-url": "^1.2.0",
+    "@sanity/vision": "^4.22.0",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.344.0",
+    "next": "^14.1.0",
+    "next-sanity": "^11.6.12",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sanity": "^4.22.0",
+    "styled-components": "^6.3.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8.4.33",
+    "prettier": "^3.2.4",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  }
+}
