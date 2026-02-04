@@ -64,11 +64,11 @@ export default function Header({ lang, toggleLanguage }: HeaderProps) {
           {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
-            className="text-sm font-medium text-gray-800 hover:text-burgundy transition-colors"
+            className="flex items-center space-x-1 text-sm font-medium text-gray-800 hover:text-burgundy transition-colors"
             aria-label="Toggle language"
           >
             <span className={lang === 'ru' ? 'text-burgundy font-bold' : ''}>RU</span>
-            {' | '}
+            <span>|</span>
             <span className={lang === 'en' ? 'text-burgundy font-bold' : ''}>EN</span>
           </button>
 
