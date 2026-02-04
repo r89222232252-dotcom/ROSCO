@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const fileName = `${Date.now()}_${file.name}`;
   const arrayBuffer = await file.arrayBuffer();
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('portfolio')
     .upload(fileName, arrayBuffer, {
       cacheControl: '3600',
