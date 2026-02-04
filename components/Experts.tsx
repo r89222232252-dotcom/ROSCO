@@ -2,17 +2,21 @@
 
 import { useEffect } from 'react';
 import { translations, Language } from '@/lib/translations';
+import { useLanguage } from '@/components/LanguageContext';
 import { motion } from 'framer-motion';
 import { Award, Star, TrendingUp } from 'lucide-react';
 // import Image from 'next/image'; // удалено как неиспользуемое
 
+
 interface ExpertsProps {
-  lang: Language;
+  lang?: Language;
 }
 
 export default function Experts({ lang }: ExpertsProps) {
+  const { lang: globalLang } = useLanguage();
+  const usedLang = lang || globalLang;
   // Новый стиль и тексты для секции Эксперты
-  const t = translations.experts[lang];
+  const t = translations.experts[usedLang];
   const subtitle = t.subtitle;
   const expertsData = [
     {
@@ -51,22 +55,18 @@ export default function Experts({ lang }: ExpertsProps) {
         const res = await fetch('/api/admin/content');
         const data = await res.json();
         if (data.success && data.settings) {
-          // const s = data.settings; // удалено как неиспользуемое
+          // ...оставить только одну реализацию компонента (последнюю, рабочую), удалить дублирующие return и JSX
           // if (s.expertsBackground) setBackgroundImage(s.expertsBackground); // удалено как неиспользуемое
-          // setBackgroundScale(s.expertsBackgroundScale || 100); // удалено как неиспользуемое
         }
       } catch (error) {
         console.error('Error loading experts:', error);
       } finally {
-        // setIsLoadingBg(false); // удалено как неиспользуемое
+        // ...existing code...
       }
     };
     load();
-  }, [lang]);
-
-  // const backgroundStyle = ... // удалено как неиспользуемое
-
-
+  }, [usedLang]);
+  // ...existing code...
   return (
     <section id="experts" className="py-24 md:py-36 bg-gradient-to-b from-white to-beige/30">
       <div className="container mx-auto px-4">

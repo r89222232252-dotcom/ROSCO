@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { translations, Language } from '@/lib/translations';
+import { useLanguage } from '@/components/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import Image from 'next/image';
 
-interface PortfolioProps {
-  lang: Language;
-}
 
 type FilterType = 'all' | 'bridal' | 'event' | 'editorial';
 
@@ -19,15 +17,21 @@ interface PortfolioItem {
   image: string;
 }
 
+interface PortfolioProps {
+  lang?: Language;
+}
+
 export default function Portfolio({ lang }: PortfolioProps) {
+  const { lang: globalLang } = useLanguage();
+  const usedLang = lang || globalLang;
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [selectedImage, setSelectedImage] = useState<PortfolioItem | null>(null);
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // Используем переводы из translations.ts
-  const t = translations.portfolio[lang];
-  const loadingText = lang === 'ru' ? 'Загрузка фото...' : 'Loading photos...';
-  const noPhotosText = lang === 'ru' ? 'Нет фото в этой категории' : 'No photos in this category';
+  const t = translations.portfolio[usedLang];
+  const loadingText = usedLang === 'ru' ? 'Загрузка фото...' : 'Loading photos...';
+  const noPhotosText = usedLang === 'ru' ? 'Нет фото в этой категории' : 'No photos in this category';
 
   // Загружаем фото с сервера
   useEffect(() => {
@@ -164,7 +168,6 @@ export default function Portfolio({ lang }: PortfolioProps) {
           </AnimatePresence>
         </motion.div>
         )}
-
       </div>
 
       {/* Modal */}

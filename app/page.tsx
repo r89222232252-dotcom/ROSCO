@@ -1,7 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
-import { Language } from '@/lib/translations';
+import { useLanguage } from '@/components/LanguageContext';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Portfolio from '@/components/Portfolio';
@@ -13,13 +13,10 @@ import FAQ from '@/components/FAQ';
 import FinalCTA from '@/components/FinalCTA';
 import Footer from '@/components/Footer';
 
+
 export default function Home() {
-  const [lang, setLang] = useState<Language>('ru');
-
-  const toggleLanguage = () => {
-    setLang(lang === 'ru' ? 'en' : 'ru');
-  };
-
+  const { lang, setLang } = useLanguage();
+  const toggleLanguage = () => setLang(lang === 'ru' ? 'en' : 'ru');
   return (
     <main className="min-h-screen">
       <Header lang={lang} toggleLanguage={toggleLanguage} />
