@@ -13,6 +13,7 @@ interface ExpertsProps {
 export default function Experts({ lang }: ExpertsProps) {
   // Новый стиль и тексты для секции Эксперты
   const t = translations.experts[lang];
+  const subtitle = t.subtitle;
   const expertsData = [
     {
       id: 'sofia',
@@ -81,9 +82,7 @@ export default function Experts({ lang }: ExpertsProps) {
             {t.title}
           </h2>
           <span className="font-sans text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto block leading-normal tracking-normal whitespace-pre-line">
-            {lang === 'ru'
-              ? 'Дуэт бьюти-экспертов мирового уровня.'
-              : 'World-class beauty experts duo.'}
+            {subtitle}
           </span>
         </motion.div>
         {/* Experts Grid */}

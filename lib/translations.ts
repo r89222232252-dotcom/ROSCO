@@ -58,6 +58,7 @@ export const translations = {
   experts: {
     ru: {
       title: 'Эксперты',
+      subtitle: 'Дуэт бьюти-экспертов мирового уровня.',
       sofia: {
         name: 'София Шамсимухаметова',
         subtitle: 'Топ-визажист · Визажист №1 в Ташкенте (2025)',
@@ -79,6 +80,7 @@ export const translations = {
     },
     en: {
       title: 'Experts',
+      subtitle: 'World-class beauty experts duo.',
       sofia: {
         name: 'Sofia Shamsimuhametova',
         subtitle: 'Top Makeup Artist · #1 Makeup Artist in Tashkent (2025)',

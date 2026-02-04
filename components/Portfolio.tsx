@@ -26,6 +26,8 @@ export default function Portfolio({ lang }: PortfolioProps) {
   const [isLoading, setIsLoading] = useState(true);
   // Используем переводы из translations.ts
   const t = translations.portfolio[lang];
+  const loadingText = lang === 'ru' ? 'Загрузка фото...' : 'Loading photos...';
+  const noPhotosText = lang === 'ru' ? 'Нет фото в этой категории' : 'No photos in this category';
 
   // Загружаем фото с сервера
   useEffect(() => {
@@ -120,11 +122,11 @@ export default function Portfolio({ lang }: PortfolioProps) {
         {/* Gallery Grid */}
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
-            <p className="text-gray-600">Загрузка фото...</p>
+            <p className="text-gray-600">{loadingText}</p>
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="flex justify-center items-center py-20">
-            <p className="text-gray-600">Нет фото в этой категории</p>
+            <p className="text-gray-600">{noPhotosText}</p>
           </div>
         ) : (
           <motion.div
