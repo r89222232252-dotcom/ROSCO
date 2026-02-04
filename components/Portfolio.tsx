@@ -94,7 +94,7 @@ export default function Portfolio({ lang }: PortfolioProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-            <h2 className="font-luxury-serif text-5xl md:text-6xl font-extrabold text-gray-900 mb-8 tracking-wide" style={{letterSpacing: '0.02em'}}>
+            <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 tracking-tight">
             {t.title}
           </h2>
           <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
