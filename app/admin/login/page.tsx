@@ -85,17 +85,7 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <p className="text-center text-gray-600 text-xs">
-              <strong>Тестовые учетные данные:</strong>
-            </p>
-            <p className="text-center text-gray-600 text-xs mt-2">
-              Имя: <code className="bg-gray-100 px-2 py-1 rounded">admin</code>
-            </p>
-            <p className="text-center text-gray-600 text-xs">
-              Пароль: <code className="bg-gray-100 px-2 py-1 rounded">admin123</code>
-            </p>
-          </div>
+
         </div>
       </div>
     </div>

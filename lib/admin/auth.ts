@@ -1,8 +1,8 @@
 // Простая система аутентификации для админ-панели
 // В продакшене используйте более надежные решения (NextAuth.js, etc)
 
-const ADMIN_USERNAME = process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+const ADMIN_USERNAME = process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'Sofia';
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'SofRus006';
 const ADMIN_SESSION_TOKEN = 'admin_session_token';
 
 export interface AdminCredentials {

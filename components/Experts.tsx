@@ -80,8 +80,10 @@ export default function Experts({ lang }: ExpertsProps) {
           <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 tracking-tight">
             {t.title}
           </h2>
-          <span className="font-sans text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto block leading-normal tracking-normal whitespace-nowrap">
-            Дуэт бьюти-экспертов мирового уровня.
+          <span className="font-sans text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto block leading-normal tracking-normal whitespace-pre-line">
+            {lang === 'ru'
+              ? 'Дуэт бьюти-экспертов мирового уровня.'
+              : 'World-class beauty experts duo.'}
           </span>
         </motion.div>
         {/* Experts Grid */}

@@ -1,46 +1,30 @@
+
 import { NextRequest, NextResponse } from 'next/server';
-import formidable from 'formidable';
-import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
+import { supabase } from '@/lib/supabaseClient';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+export const runtime = 'edge';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export default async function handler(req: NextRequest) {
-  if (req.method !== 'POST') {
-    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const file = formData.get('image') as File;
+  if (!file) {
+    return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
   }
 
-  const form = new formidable.IncomingForm();
-
-  return new Promise((resolve, reject) => {
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        resolve(NextResponse.json({ error: 'Form parse error' }, { status: 400 }));
-        return;
-      }
-      const file = files.image;
-      if (!file) {
-        resolve(NextResponse.json({ error: 'No file uploaded' }, { status: 400 }));
-        return;
-      }
-      try {
-        const result = await cloudinary.uploader.upload(file.filepath, {
-          folder: 'portfolio',
-        });
-        resolve(NextResponse.json({ url: result.secure_url }));
-      } catch (error) {
-        resolve(NextResponse.json({ error: 'Cloudinary upload error' }, { status: 500 }));
-      }
+  const fileName = `${Date.now()}_${file.name}`;
+  const arrayBuffer = await file.arrayBuffer();
+  const { data, error } = await supabase.storage
+    .from('portfolio')
+    .upload(fileName, arrayBuffer, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
     });
-  });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const publicUrl = supabase.storage.from('portfolio').getPublicUrl(fileName).data.publicUrl;
+  return NextResponse.json({ url: publicUrl });
 }

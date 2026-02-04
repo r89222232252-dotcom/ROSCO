@@ -13,7 +13,7 @@ interface PhotoItem {
 }
 
 export default function MediaPage() {
-  const [uploadingTo, setUploadingTo] = useState<'sanity' | 'local'>('local');
+  // Supabase-only upload
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -75,60 +75,26 @@ export default function MediaPage() {
       setUploadMessage({ type: 'error', text: 'Выберите фото для загрузки!' });
       return;
     }
-
     setIsUploading(true);
     setUploadMessage(null);
-
     try {
-      if (uploadingTo === 'sanity') {
-        for (const file of files) {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('category', selectedCategory);
-
-          const response = await fetch('/api/admin/upload-media', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) throw new Error('Ошибка загрузки');
-        }
-
-        setUploadMessage({
-          type: 'success',
-          text: `✅ ${files.length} фото загружены в Sanity облако!`,
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('image', file);
+        // Можно добавить category, если нужно
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
         });
-      } else {
-        for (const file of files) {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('category', selectedCategory);
-
-          const response = await fetch('/api/admin/upload-local', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) throw new Error('Ошибка загрузки');
-        }
-
-        setUploadMessage({
-          type: 'success',
-          text: `✅ ${files.length} фото загружены локально!`,
-        });
-
-        // Перезагружаем список фото
-        await loadPhotos();
+        if (!response.ok) throw new Error('Ошибка загрузки');
       }
-
+      setUploadMessage({ type: 'success', text: `✅ ${files.length} фото загружены!` });
+      await loadPhotos();
       setFiles([]);
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (input) input.value = '';
     } catch (error) {
-      setUploadMessage({
-        type: 'error',
-        text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-      });
+      setUploadMessage({ type: 'error', text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}` });
     } finally {
       setIsUploading(false);
     }
@@ -136,17 +102,12 @@ export default function MediaPage() {
 
   const handleDeletePhoto = async (photo: PhotoItem) => {
     if (!confirm(`Удалить фото: ${photo.filename}?`)) return;
-
     try {
-      const response = await fetch('/api/admin/manage-photos', {
+      const response = await fetch('/api/delete-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'delete',
-          photoPath: photo.path.replace(/^\//, ''),
-        }),
+        body: JSON.stringify({ filename: photo.filename }),
       });
-
       if (response.ok) {
         setUploadMessage({ type: 'success', text: '✅ Фото удалено!' });
         await loadPhotos();
@@ -154,10 +115,7 @@ export default function MediaPage() {
         setUploadMessage({ type: 'error', text: '❌ Ошибка удаления' });
       }
     } catch (error) {
-      setUploadMessage({
-        type: 'error',
-        text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-      });
+      setUploadMessage({ type: 'error', text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}` });
     }
   };
 
@@ -229,36 +187,7 @@ export default function MediaPage() {
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-6">
                 <h2 className="text-xl font-semibold text-slate-900 mb-4">⬆️ Загрузить фото</h2>
 
-                {/* Выбор места */}
-                <div className="space-y-2 mb-6">
-                  <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-blue-50"
-                    style={{
-                      border: uploadingTo === 'local' ? '2px solid #10b981' : '1px solid #e2e8f0',
-                    }}>
-                    <input
-                      type="radio"
-                      value="local"
-                      checked={uploadingTo === 'local'}
-                      onChange={(e) => setUploadingTo(e.target.value as 'sanity' | 'local')}
-                      className="w-4 h-4 text-green-600"
-                    />
-                    <span className="ml-3 text-sm font-medium">💾 Локально</span>
-                  </label>
 
-                  <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-blue-50"
-                    style={{
-                      border: uploadingTo === 'sanity' ? '2px solid #3b82f6' : '1px solid #e2e8f0',
-                    }}>
-                    <input
-                      type="radio"
-                      value="sanity"
-                      checked={uploadingTo === 'sanity'}
-                      onChange={(e) => setUploadingTo(e.target.value as 'sanity' | 'local')}
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <span className="ml-3 text-sm font-medium">☁️ Sanity</span>
-                  </label>
-                </div>
 
                 {/* Категория */}
                 <div className="mb-6">

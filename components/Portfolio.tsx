@@ -24,16 +24,8 @@ export default function Portfolio({ lang }: PortfolioProps) {
   const [selectedImage, setSelectedImage] = useState<PortfolioItem | null>(null);
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // Новый subtitle для Portfolio
-  const t = lang === 'ru'
-    ? {
-        ...translations.portfolio.ru,
-        subtitle: 'От элегантной классики до выразительных и эффектных образов.\nКаждый образ — отражение вашей индивидуальной красоты и настроения события.'
-      }
-    : {
-        ...translations.portfolio.en,
-        subtitle: 'From elegant classics to bold, statement looks.\nEach look reflects your individuality\nand the mood of the occasion'
-      };
+  // Используем переводы из translations.ts
+  const t = translations.portfolio[lang];
 
   // Загружаем фото с сервера
   useEffect(() => {
@@ -94,14 +86,11 @@ export default function Portfolio({ lang }: PortfolioProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-            <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 tracking-tight">
             {t.title}
           </h2>
-          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
-              <span className="font-sans text-lg md:text-xl text-gray-700 max-w-3xl mx-auto block leading-normal tracking-normal whitespace-nowrap">
-                От элегантной классики до выразительных и эффектных образов.<br />
-                Каждый образ — отражение вашей индивидуальной красоты и настроения события.
-              </span>
+          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto whitespace-pre-line">
+            {t.subtitle}
           </p>
         </motion.div>
 
