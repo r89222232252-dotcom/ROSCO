@@ -27,7 +27,7 @@ export default function MediaPage() {
   const [selectedCategory, setSelectedCategory] = useState<'bridal' | 'event' | 'editorial' | 'experts'>('bridal');
 
   // Состояние фото
-  const [photos, setPhotos] = useState<Record<string, PhotoItem[]>>({});
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
   const [moveToCategory, setMoveToCategory] = useState<'bridal' | 'event' | 'editorial'>('bridal');
@@ -68,21 +68,15 @@ export default function MediaPage() {
   const loadPhotos = async () => {
     try {
       setIsLoadingPhotos(true);
-      const response = await fetch('/api/admin/get-photos');
+      const response = await fetch('/api/admin/supabase-list?folder=');
       const data = await response.json();
-
-      if (data.success && data.photos) {
-        const photosMap: Record<string, PhotoItem[]> = {};
-        for (const [cat, paths] of Object.entries(data.photos)) {
-          if (Array.isArray(paths)) {
-            photosMap[cat] = (paths as string[]).map(path => ({
-              path,
-              filename: path.split('/').pop() || '',
-              category: cat,
-            }));
-          }
-        }
-        setPhotos(photosMap);
+      if (data.success && data.files) {
+        setPhotos(data.files.map((file: any) => ({
+          path: file.name,
+          filename: file.name,
+          category: '',
+          url: file.url,
+        })));
       }
     } catch (error) {
       console.error('Ошибка загрузки фото:', error);
@@ -115,29 +109,23 @@ export default function MediaPage() {
       setUploadMessage({ type: 'error', text: 'Выберите фото для загрузки!' });
       return;
     }
-
     setIsUploading(true);
     setUploadMessage(null);
-
     try {
       for (const file of files) {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('category', selectedCategory);
-
-        const response = await fetch('/api/admin/upload-local', {
+        formData.append('folder', selectedCategory);
+        const response = await fetch('/api/admin/supabase-upload', {
           method: 'POST',
           body: formData,
         });
-
         if (!response.ok) throw new Error('Ошибка загрузки');
       }
-
       setUploadMessage({
         type: 'success',
         text: `✅ ${files.length} фото загружены!`,
       });
-
       setFiles([]);
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (input) input.value = '';
@@ -154,45 +142,14 @@ export default function MediaPage() {
 
   const handleDeletePhoto = async (photo: PhotoItem) => {
     if (!confirm(`Удалить фото: ${photo.filename}?`)) return;
-
     try {
-      const response = await fetch('/api/admin/manage-photos', {
+      const response = await fetch('/api/admin/supabase-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'delete',
-          photoPath: photo.path.replace(/^\//, ''),
-        }),
+        body: JSON.stringify({ path: photo.path }),
       });
-
       if (response.ok) {
         setUploadMessage({ type: 'success', text: '✅ Фото удалено!' });
-        
-        // Проверяем, является ли удаляемое фото фоном, и если да - сбрасываем фон
-        if (settings.homeBackground === photo.path) {
-          setSettings({ ...settings, homeBackground: null });
-          await fetch('/api/admin/backgrounds', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              backgroundType: 'homeBackground',
-              backgroundPath: null,
-            }),
-          });
-        }
-        
-        if (settings.expertsBackground === photo.path) {
-          setSettings({ ...settings, expertsBackground: null });
-          await fetch('/api/admin/backgrounds', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              backgroundType: 'expertsBackground',
-              backgroundPath: null,
-            }),
-          });
-        }
-        
         await loadPhotos();
       } else {
         setUploadMessage({ type: 'error', text: '❌ Ошибка удаления' });
