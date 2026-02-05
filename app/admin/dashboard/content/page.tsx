@@ -24,7 +24,15 @@ interface ExpertItem {
 
 export default function ContentPage() {
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<any>(null);
+  interface Hero {
+    title: LocalizedString;
+    subtitle: LocalizedString;
+    location: LocalizedString;
+  }
+  interface SiteTexts {
+    [key: string]: LocalizedString | string;
+  }
+  const [settings, setSettings] = useState<{ hero: Hero; experts: ExpertItem[]; siteTexts: SiteTexts } | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -108,7 +116,7 @@ export default function ContentPage() {
 
   const removeExpert = (id: string) => {
     if (!confirm('Удалить эксперта?')) return;
-    setSettings({ ...settings, experts: (settings.experts || []).filter((e: any) => e.id !== id) });
+    setSettings({ ...settings, experts: (settings.experts || []).filter((e: ExpertItem) => e.id !== id) });
   };
 
   if (loading || !settings) return (
@@ -179,56 +187,56 @@ export default function ContentPage() {
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium">Name (RU)</label>
-                    <input value={ex.name.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, name: { ...i.name, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.name.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, name: { ...i.name, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium">Name (EN)</label>
-                    <input value={ex.name.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, name: { ...i.name, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.name.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, name: { ...i.name, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium">Role (RU)</label>
-                    <input value={ex.role.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, role: { ...i.role, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.role.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, role: { ...i.role, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium">Role (EN)</label>
-                    <input value={ex.role.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, role: { ...i.role, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.role.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, role: { ...i.role, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium">Bio (RU)</label>
-                    <input value={ex.bio.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, bio: { ...i.bio, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.bio.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, bio: { ...i.bio, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium">Bio (EN)</label>
-                    <input value={ex.bio.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, bio: { ...i.bio, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.bio.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, bio: { ...i.bio, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium">Overlay text (RU)</label>
-                    <input value={ex.overlayText.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, overlayText: { ...i.overlayText, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.overlayText.ru} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, overlayText: { ...i.overlayText, ru: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium">Overlay text (EN)</label>
-                    <input value={ex.overlayText.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, overlayText: { ...i.overlayText, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
+                    <input value={ex.overlayText.en} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, overlayText: { ...i.overlayText, en: e.target.value } } : i) })} className="mt-1 w-full px-3 py-2 border rounded" />
                   </div>
 
                   <div className="flex items-center gap-2 mt-2">
                     <label className="block text-sm font-medium mr-2">Scale</label>
-                    <input type="range" min={50} max={200} value={ex.imageScale} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, imageScale: parseInt(e.target.value) } : i) })} />
+                    <input type="range" min={50} max={200} value={ex.imageScale} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, imageScale: parseInt(e.target.value) } : i) })} />
                     <span className="text-sm w-12">{ex.imageScale}%</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <label className="block text-sm font-medium mr-2">Pos X</label>
-                    <input type="range" min={0} max={100} value={ex.imagePos.x} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, imagePos: { ...i.imagePos, x: parseInt(e.target.value) } } : i) })} />
+                    <input type="range" min={0} max={100} value={ex.imagePos.x} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, imagePos: { ...i.imagePos, x: parseInt(e.target.value) } } : i) })} />
                     <span className="text-sm w-12">{ex.imagePos.x}%</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <label className="block text-sm font-medium mr-2">Pos Y</label>
-                    <input type="range" min={0} max={100} value={ex.imagePos.y} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, imagePos: { ...i.imagePos, y: parseInt(e.target.value) } } : i) })} />
+                    <input type="range" min={0} max={100} value={ex.imagePos.y} onChange={(e) => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, imagePos: { ...i.imagePos, y: parseInt(e.target.value) } } : i) })} />
                     <span className="text-sm w-12">{ex.imagePos.y}%</span>
                   </div>
 
@@ -238,7 +246,7 @@ export default function ContentPage() {
                       const file = e.target.files?.[0];
                       if (file) handleUpload(file, ex.id);
                     }} />
-                    <button title="Remove" onClick={() => setSettings({ ...settings, experts: settings.experts.map((i: any) => i.id === ex.id ? { ...i, imagePath: null } : i) })} className="p-2 bg-red-600 text-white rounded"><Trash2 size={14} /></button>
+                    <button title="Remove" onClick={() => setSettings({ ...settings, experts: settings.experts.map((i: ExpertItem) => i.id === ex.id ? { ...i, imagePath: null } : i) })} className="p-2 bg-red-600 text-white rounded"><Trash2 size={14} /></button>
                     <button title="Delete expert" onClick={() => removeExpert(ex.id)} className="p-2 bg-slate-300 rounded text-sm">Удалить</button>
                   </div>
                 </div>

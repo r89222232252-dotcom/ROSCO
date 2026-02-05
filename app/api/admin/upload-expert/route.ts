@@ -14,7 +14,10 @@ export async function POST(request: NextRequest) {
     }
 
     // extract name
-    const fileName = (file as any).name || `expert-${Date.now()}`;
+    let fileName = `expert-${Date.now()}`;
+    if (typeof file === 'object' && file && 'name' in file && typeof (file as { name?: unknown }).name === 'string') {
+      fileName = (file as { name: string }).name;
+    }
     // const ext = extname(fileName) || '.jpg'; // удалено как неиспользуемое
     const safeName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
 

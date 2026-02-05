@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
 import AdminNav from '@/components/admin/AdminNav';
-import { Upload, AlertCircle, CheckCircle, Loader, Trash2, Move, Image as ImageIcon } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle, Loader, Trash2, Move } from 'lucide-react';
 import Image from 'next/image';
 
 interface PhotoItem {
   path: string;
   filename: string;
   category: string;
+  url?: string;
 }
 
 interface Settings {
@@ -19,7 +20,6 @@ interface Settings {
   expertsBackgroundScale: number;
 }
 
-export default function MediaPage() {
   // Состояние загрузки фото
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -27,7 +27,13 @@ export default function MediaPage() {
   const [selectedCategory, setSelectedCategory] = useState<'bridal' | 'event' | 'editorial' | 'experts'>('bridal');
 
   // Состояние фото
-  const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  type Category = 'bridal' | 'event' | 'editorial' | 'experts';
+  const [photos, setPhotos] = useState<Record<Category, PhotoItem[]>>({
+    bridal: [],
+    event: [],
+    editorial: [],
+    experts: [],
+  });
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
   const [moveToCategory, setMoveToCategory] = useState<'bridal' | 'event' | 'editorial'>('bridal');
@@ -54,38 +60,10 @@ export default function MediaPage() {
 
   const portfolioCategories = ['bridal', 'event', 'editorial'];
 
-  const backgroundLabels = {
-    homeBackground: '🏠 Главная страница',
-    expertsBackground: '👥 Страница экспертов',
-  };
+  // ...existing code...
 
-  // Загружаем список фото и настройки
-  useEffect(() => {
-    loadPhotos();
-    loadSettings();
-  }, []);
-
-  const loadPhotos = async () => {
-    try {
-      setIsLoadingPhotos(true);
-      const response = await fetch('/api/admin/supabase-list?folder=');
-      const data = await response.json();
-      if (data.success && data.files) {
-        setPhotos(data.files.map((file: any) => ({
-          path: file.name,
-          filename: file.name,
-          category: '',
-          url: file.url,
-        })));
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки фото:', error);
-    } finally {
-      setIsLoadingPhotos(false);
-    }
-  };
-
-  const loadSettings = async () => {
+  // Загрузка настроек (useCallback должен быть выше useEffect)
+  const loadSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/backgrounds');
       const data = await response.json();
@@ -96,6 +74,53 @@ export default function MediaPage() {
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
     }
+  }, [selectedBackgroundType]);
+
+  // Загружаем список фото и настройки
+  useEffect(() => {
+    loadPhotos();
+    loadSettings();
+  }, [loadSettings]);
+
+  const loadPhotos = async () => {
+    try {
+      setIsLoadingPhotos(true);
+      const response = await fetch('/api/admin/supabase-list?folder=');
+      const data = await response.json();
+      if (data.success && data.files) {
+        // Группируем фото по категориям
+        const grouped: Record<Category, PhotoItem[]> = {
+          bridal: [],
+          event: [],
+          editorial: [],
+          experts: [],
+        };
+        data.files.forEach((file: { name: string; url: string }) => {
+          const match = file.name.match(/^(bridal|event|editorial|experts)\//);
+          const category = (match ? match[1] : '') as Category;
+          if (grouped[category]) {
+            grouped[category].push({
+              path: file.name,
+              filename: file.name.split('/').pop() || file.name,
+              category,
+              url: file.url,
+            });
+          }
+        });
+        setPhotos(grouped);
+      } else {
+        setPhotos({
+          bridal: [],
+          event: [],
+          editorial: [],
+          experts: [],
+        });
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки фото:', error);
+    } finally {
+      setIsLoadingPhotos(false);
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,128 +129,13 @@ export default function MediaPage() {
     }
   };
 
-  const handleUpload = async () => {
-    if (files.length === 0) {
-      setUploadMessage({ type: 'error', text: 'Выберите фото для загрузки!' });
-      return;
-    }
-    setIsUploading(true);
-    setUploadMessage(null);
-    try {
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('folder', selectedCategory);
-        const response = await fetch('/api/admin/supabase-upload', {
-          method: 'POST',
-          body: formData,
-        });
-        if (!response.ok) throw new Error('Ошибка загрузки');
-      }
-      setUploadMessage({
-        type: 'success',
-        text: `✅ ${files.length} фото загружены!`,
-      });
-      setFiles([]);
-      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (input) input.value = '';
-      await loadPhotos();
-    } catch (error) {
-      setUploadMessage({
-        type: 'error',
-        text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  // ...existing code...
 
-  const handleDeletePhoto = async (photo: PhotoItem) => {
-    if (!confirm(`Удалить фото: ${photo.filename}?`)) return;
-    try {
-      const response = await fetch('/api/admin/supabase-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: photo.path }),
-      });
-      if (response.ok) {
-        setUploadMessage({ type: 'success', text: '✅ Фото удалено!' });
-        await loadPhotos();
-      } else {
-        setUploadMessage({ type: 'error', text: '❌ Ошибка удаления' });
-      }
-    } catch (error) {
-      setUploadMessage({
-        type: 'error',
-        text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-      });
-    }
-  };
+  // ...existing code...
 
-  const handleMovePhoto = async () => {
-    if (!selectedPhoto) return;
+  // ...existing code...
 
-    setIsMoving(true);
-    try {
-      const response = await fetch('/api/admin/manage-photos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'move',
-          photoPath: selectedPhoto.path.replace(/^\//, ''),
-          newCategory: moveToCategory,
-        }),
-      });
-
-      if (response.ok) {
-        setUploadMessage({ type: 'success', text: '✅ Фото перемещено!' });
-        setSelectedPhoto(null);
-        await loadPhotos();
-      } else {
-        setUploadMessage({ type: 'error', text: '❌ Ошибка перемещения' });
-      }
-    } catch (error) {
-      setUploadMessage({
-        type: 'error',
-        text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-      });
-    } finally {
-      setIsMoving(false);
-    }
-  };
-
-  const handleSetBackground = async (photoPath: string) => {
-    setIsSavingBackground(true);
-    try {
-      const response = await fetch('/api/admin/backgrounds', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          backgroundType: selectedBackgroundType,
-          backgroundPath: photoPath,
-          backgroundScale: backgroundScale,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSettings(data.settings);
-        setUploadMessage({
-          type: 'success',
-          text: `✅ Фон установлен!`,
-        });
-      } else {
-        setUploadMessage({ type: 'error', text: '❌ Ошибка установки фона' });
-      }
-    } catch (error) {
-      setUploadMessage({
-        type: 'error',
-        text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-      });
-    } finally {
-      setIsSavingBackground(false);
-    }
-  };
+  // ...existing code...
 
   return (
     <ProtectedRoute>
@@ -294,7 +204,7 @@ export default function MediaPage() {
                     <label className="block text-sm font-medium text-slate-700 mb-2">Категория:</label>
                     <select
                       value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value as any)}
+                      onChange={(e) => setSelectedCategory(e.target.value as 'bridal' | 'event' | 'editorial' | 'experts')}
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
                     >
                       {Object.entries(categories).map(([key, val]) => (
@@ -357,7 +267,7 @@ export default function MediaPage() {
                               </span>
                             </h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                              {(photos[cat] || []).map((photo, idx) => (
+                              {(photos[cat] || []).map((photo: PhotoItem, idx: number) => (
                                 <div key={idx} className="relative group">
                                   <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-slate-100">
                                     <Image
@@ -400,7 +310,7 @@ export default function MediaPage() {
                             </span>
                           </h3>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {(photos['experts'] || []).map((photo, idx) => (
+                            {(photos['experts'] || []).map((photo: PhotoItem, idx: number) => (
                               <div key={idx} className="relative group">
                                 <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-slate-100">
                                   <Image
@@ -515,7 +425,7 @@ export default function MediaPage() {
 
                     <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
                       {portfolioCategories.flatMap(cat =>
-                        (photos[cat] || []).map((photo) => (
+                        (photos[cat] || []).map((photo: PhotoItem) => (
                           <button
                             key={photo.path}
                             onClick={() => {
@@ -566,7 +476,7 @@ export default function MediaPage() {
               <p className="text-sm text-slate-600 mb-4">Выбери новую категорию:</p>
               <select
                 value={moveToCategory}
-                onChange={(e) => setMoveToCategory(e.target.value as any)}
+                onChange={(e) => setMoveToCategory(e.target.value as 'bridal' | 'event' | 'editorial')}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg mb-6 focus:outline-none focus:border-blue-500"
               >
                 {portfolioCategories.map(cat => (

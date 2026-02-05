@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const filePath = `${folder}/${fileName}`;
 
     // Загрузка в Supabase Storage (bucket: 'media')
-    const { data, error } = await supabase.storage.from('Portfolio').upload(filePath, buffer, {
+    const { error } = await supabase.storage.from('Portfolio').upload(filePath, buffer, {
       contentType: file.type || 'image/jpeg',
       upsert: false,
     });

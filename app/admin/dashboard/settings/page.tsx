@@ -33,7 +33,6 @@ export default function SettingsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically send the data to your API
-    console.log('Saving settings:', formData);
     setSaved(true);
     setHasChanges(false);
     setTimeout(() => setSaved(false), 3000);

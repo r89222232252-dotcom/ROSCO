@@ -194,7 +194,7 @@ export default function MediaPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">Категория:</label>
                   <select
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value as any)}
+                    onChange={(e) => setSelectedCategory(e.target.value as 'bridal' | 'event' | 'editorial' | 'experts')}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
                   >
                     {Object.entries(categories).map(([key, val]) => (
@@ -305,7 +305,7 @@ export default function MediaPage() {
                 <p className="text-sm text-slate-600 mb-4">Выбери новую категорию:</p>
                 <select
                   value={moveToCategory}
-                  onChange={(e) => setMoveToCategory(e.target.value as any)}
+                  onChange={(e) => setMoveToCategory(e.target.value as 'bridal' | 'event' | 'editorial')}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg mb-6 focus:outline-none focus:border-blue-500"
                 >
                   {portfolioCategories.map(cat => (

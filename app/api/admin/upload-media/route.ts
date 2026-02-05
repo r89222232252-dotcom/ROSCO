@@ -6,10 +6,6 @@ export async function POST(request: NextRequest) {
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
     const apiToken = process.env.SANITY_API_TOKEN;
 
-    console.log('📤 Загрузка в Sanity (облако):');
-    console.log('  Project ID:', projectId);
-    console.log('  Dataset:', dataset);
-    console.log('  API Token:', apiToken ? '✅ Есть' : '❌ НЕТ!');
 
     if (!projectId || !dataset) {
       return NextResponse.json(
@@ -35,7 +31,6 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    console.log('📁 Загрузка файла:', file.name, 'размер:', file.size);
 
     const uploadUrl = `https://${projectId}.api.sanity.io/v2021-06-07/assets/images/${dataset}`;
     
@@ -48,7 +43,6 @@ export async function POST(request: NextRequest) {
       body: buffer,
     });
 
-    console.log('📡 Ответ Sanity:', response.status, response.statusText);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -60,7 +54,6 @@ export async function POST(request: NextRequest) {
     }
 
     const assetData = await response.json();
-    console.log('✅ Файл загружен в Sanity:', assetData.document._id);
 
     return NextResponse.json({
       success: true,

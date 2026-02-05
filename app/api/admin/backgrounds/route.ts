@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
 
     await writeFile(SETTINGS_FILE, JSON.stringify(settings, null, 2));
 
-    console.log(`✅ Фон обновлен: ${backgroundType} = ${backgroundPath}, масштаб = ${backgroundScale || 100}%`);
 
     return NextResponse.json({
       success: true,

@@ -19,9 +19,7 @@ export async function POST(request: NextRequest) {
     if (action === 'delete') {
       // Удаление фото
       const fullPath = join(process.cwd(), 'public', photoPath);
-      console.log('🗑️ Удаление фото:', fullPath);
       await unlink(fullPath);
-      console.log('✅ Фото удалено');
       return NextResponse.json({ success: true, message: 'Фото удалено' });
     } else if (action === 'move') {
       // Перемещение между категориями
@@ -33,9 +31,7 @@ export async function POST(request: NextRequest) {
       const filename = basename(photoPath);
       const newFullPath = join(process.cwd(), 'public', 'images', 'portfolio', newCategory, filename);
 
-      console.log('📁 Перемещение фото:', { from: photoPath, to: newCategory });
       await rename(oldFullPath, newFullPath);
-      console.log('✅ Фото перемещено');
 
       return NextResponse.json({
         success: true,

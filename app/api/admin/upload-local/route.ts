@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const category = formData.get('category') as string;
 
-    console.log('📤 Загрузка фото:', { filename: file?.name, category, size: file?.size });
 
     if (!file) {
       return NextResponse.json({ error: '❌ Файл не найден' }, { status: 400 });
@@ -39,12 +38,10 @@ export async function POST(request: NextRequest) {
 
     // Создаем полный путь (public folder)
     const fullPath = join(process.cwd(), 'public', uploadPath);
-    console.log('📁 Сохранение в:', fullPath);
 
     // Создаем директорию если её нет
     try {
       await mkdir(fullPath, { recursive: true });
-      console.log('✅ Папка создана/проверена');
     } catch (mkdirError) {
       console.error('❌ Ошибка создания папки:', mkdirError);
       throw mkdirError;
@@ -56,14 +53,12 @@ export async function POST(request: NextRequest) {
     const filename = `${timestamp}-${sanitizedName}`;
     const filepath = join(fullPath, filename);
 
-    console.log('💾 Сохранение файла:', filename);
 
     // Конвертируем file в buffer и сохраняем
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await writeFile(filepath, buffer);
 
-    console.log('✅ Файл успешно сохранен');
 
     return NextResponse.json({
       success: true,
