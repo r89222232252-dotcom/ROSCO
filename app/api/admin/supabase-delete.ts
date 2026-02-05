@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Не указан путь к файлу' }, { status: 400 });
     }
     // Удаление из Supabase Storage (bucket: 'media')
-    const { error } = await supabase.storage.from('Portfolio').remove([path]);
+    const { error } = await supabase.storage.from('portfolio').remove([path]);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
