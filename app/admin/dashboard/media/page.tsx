@@ -202,10 +202,8 @@ export default function MediaPage() {
     try {
       for (const file of files) {
         const formData = new FormData();
-        formData.append('image', file);
-        formData.append('category', selectedCategory);
-        // Путь для Supabase: category/filename
-        formData.append('path', `${selectedCategory}/${file.name}`);
+        formData.append('file', file);
+        formData.append('folder', selectedCategory);
         const response = await fetch('/api/admin/supabase-upload', {
           method: 'POST',
           body: formData,
