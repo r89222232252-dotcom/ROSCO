@@ -5,14 +5,14 @@ export async function GET(request: NextRequest) {
   try {
     const folder = request.nextUrl.searchParams.get('folder') || '';
     // Получение списка файлов из Supabase Storage (bucket: 'media')
-    const { data, error } = await supabase.storage.from('media').list(folder, { limit: 100, offset: 0 });
+    const { data, error } = await supabase.storage.from('Portfolio').list(folder, { limit: 100, offset: 0 });
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     // Добавить публичные ссылки
     const files = (data || []).map(file => ({
       ...file,
-      url: supabase.storage.from('media').getPublicUrl(folder ? `${folder}/${file.name}` : file.name).data.publicUrl,
+      url: supabase.storage.from('Portfolio').getPublicUrl(folder ? `${folder}/${file.name}` : file.name).data.publicUrl,
     }));
     return NextResponse.json({ success: true, files });
   } catch (error) {
