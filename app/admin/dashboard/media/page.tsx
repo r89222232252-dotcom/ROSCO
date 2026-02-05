@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
 import AdminNav from '@/components/admin/AdminNav';
@@ -20,14 +18,58 @@ interface Settings {
   expertsBackgroundScale: number;
 }
 
+type Category = 'bridal' | 'event' | 'editorial' | 'experts';
+
+const ImageIcon = (props: { size?: number }) => (
+  <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 20 20" fill="none">
+    <rect width="20" height="20" rx="4" fill="#e5e7eb"/>
+    <rect x="4" y="12" width="12" height="4" rx="2" fill="#a3a3a3"/>
+    <circle cx="7" cy="8" r="2" fill="#a3a3a3"/>
+  </svg>
+);
+
+const backgroundLabels: Record<'homeBackground' | 'expertsBackground', string> = {
+  homeBackground: 'Фон главной',
+  expertsBackground: 'Фон мастеров',
+};
+
+export default function MediaPage() {
+    // Перемещение фото между категориями
+    const handleMovePhoto = async () => {
+      if (!selectedPhoto) return;
+      setIsMoving(true);
+      setUploadMessage(null);
+      try {
+        const response = await fetch('/api/admin/manage-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'move',
+            photoPath: selectedPhoto.path,
+            newCategory: moveToCategory,
+          }),
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+          setUploadMessage({ type: 'success', text: '✅ Фото перемещено!' });
+          setSelectedPhoto(null);
+          await loadPhotos();
+        } else {
+          setUploadMessage({ type: 'error', text: `❌ Ошибка перемещения: ${data.error || 'Неизвестная ошибка'}` });
+        }
+      } catch (error) {
+        setUploadMessage({ type: 'error', text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}` });
+      } finally {
+        setIsMoving(false);
+      }
+    };
   // Состояние загрузки фото
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<'bridal' | 'event' | 'editorial' | 'experts'>('bridal');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('bridal');
 
   // Состояние фото
-  type Category = 'bridal' | 'event' | 'editorial' | 'experts';
   const [photos, setPhotos] = useState<Record<Category, PhotoItem[]>>({
     bridal: [],
     event: [],
@@ -58,9 +100,7 @@ interface Settings {
     experts: { label: '👤 Мастера' },
   };
 
-  const portfolioCategories = ['bridal', 'event', 'editorial'];
-
-  // ...existing code...
+  const portfolioCategories: Category[] = ['bridal', 'event', 'editorial'];
 
   // Загрузка настроек (useCallback должен быть выше useEffect)
   const loadSettings = useCallback(async () => {
@@ -129,13 +169,90 @@ interface Settings {
     }
   };
 
-  // ...existing code...
+  // Удаление фото
+  const handleDeletePhoto = async (photo: PhotoItem) => {
+    if (!confirm(`Удалить фото: ${photo.filename}?`)) return;
+    setUploadMessage(null);
+    try {
+      const response = await fetch('/api/admin/supabase-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: photo.path }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setUploadMessage({ type: 'success', text: '✅ Фото удалено!' });
+        await loadPhotos();
+      } else {
+        setUploadMessage({ type: 'error', text: `❌ Ошибка удаления: ${data.error || 'Неизвестная ошибка'}` });
+      }
+    } catch (error) {
+      setUploadMessage({ type: 'error', text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}` });
+    }
+  };
 
-  // ...existing code...
+  // Загрузка фото
+  const handleUpload = async () => {
+    if (files.length === 0) {
+      setUploadMessage({ type: 'error', text: 'Выберите фото для загрузки!' });
+      return;
+    }
+    setIsUploading(true);
+    setUploadMessage(null);
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('category', selectedCategory);
+        // Путь для Supabase: category/filename
+        formData.append('path', `${selectedCategory}/${file.name}`);
+        const response = await fetch('/api/admin/supabase-upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Ошибка загрузки');
+        }
+      }
+      setUploadMessage({ type: 'success', text: `✅ ${files.length} фото загружены!` });
+      await loadPhotos();
+      setFiles([]);
+      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (input) input.value = '';
+    } catch (error) {
+      setUploadMessage({ type: 'error', text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}` });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-  // ...existing code...
-
-  // ...existing code...
+  // Установить фон для выбранного типа
+  const handleSetBackground = async (path: string) => {
+    setIsSavingBackground(true);
+    try {
+      const response = await fetch('/api/admin/backgrounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          backgroundType: selectedBackgroundType,
+          backgroundPath: path,
+          backgroundScale: backgroundScale,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSettings(data.settings);
+        setUploadMessage({ type: 'success', text: '✅ Фон установлен!' });
+      } else {
+        setUploadMessage({ type: 'error', text: `❌ Ошибка установки фона: ${data.error || 'Неизвестная ошибка'}` });
+      }
+    } catch (error) {
+      setUploadMessage({ type: 'error', text: `❌ Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}` });
+    } finally {
+      setIsSavingBackground(false);
+    }
+  };
 
   return (
     <ProtectedRoute>
