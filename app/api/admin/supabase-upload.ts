@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const filePath = `${folder}/${fileName}`;
 
     // Загрузка в Supabase Storage (bucket: 'media')
-    const { error } = await supabase.storage.from('portfolio').upload(filePath, buffer, {
+    const { error } = await supabase.storage.from('Portfolio').upload(filePath, buffer, {
       contentType: file.type || 'image/jpeg',
       upsert: false,
     });
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Получение публичного URL
-    const { data: publicUrlData } = supabase.storage.from('portfolio').getPublicUrl(filePath);
+    const { data: publicUrlData } = supabase.storage.from('Portfolio').getPublicUrl(filePath);
     return NextResponse.json({
       success: true,
       url: publicUrlData.publicUrl,
